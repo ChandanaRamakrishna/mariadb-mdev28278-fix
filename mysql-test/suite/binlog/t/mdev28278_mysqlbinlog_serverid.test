@@ -1,0 +1,28 @@
+--source include/master-slave.inc
+
+--echo #
+--echo MDEV-28278 / MDEV-37231: mysqlbinlog must respect server_id
+--echo #
+
+connection master;
+
+CREATE TABLE t1(id INT);
+INSERT INTO t1 VALUES (1),(2),(3);
+
+FLUSH LOGS;
+
+--let $binlog_file= query_get_value(SHOW MASTER STATUS, File, 1)
+
+--echo #
+--echo Dump binlog using mysqlbinlog
+--echo #
+
+--exec $MYSQL_BINLOG $MYSQLTEST_VARDIR/mysqld.1/data/$binlog_file
+
+# cleanup
+connection master;
+DROP TABLE IF EXISTS t1;
+
+connection slave;
+STOP SLAVE;
+DROP TABLE IF EXISTS t1;
