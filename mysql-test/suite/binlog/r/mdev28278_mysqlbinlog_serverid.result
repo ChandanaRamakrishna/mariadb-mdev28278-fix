@@ -1,0 +1,42 @@
+include/master-slave.inc
+[connection master]
+#
+MDEV-28278 / MDEV-37231: mysqlbinlog must respect server_id
+#
+connection master;
+CREATE TABLE t1(id INT);
+INSERT INTO t1 VALUES (1),(2),(3);
+FLUSH LOGS;
+#
+Dump binlog using mysqlbinlog
+#
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/;
+/*!40019 SET @@session.max_delayed_threads=0*/;
+/*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/;
+DELIMITER /*!*/;
+# at 4
+#260312 13:39:14 server id 1  end_log_pos 256 CRC32 0x19afc0dd 	Start: binlog v 4, server v 10.11.17-MariaDB-log created 260312 13:39:14
+# Warning: this binlog is either in use or was not closed properly.
+BINLOG '
+qnSyaQ8BAAAA/AAAAAABAAABAAQAMTAuMTEuMTctTWFyaWFEQi1sb2cAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAEzgNAAgAEgAEBAQEEgAA5AAEGggAAAAICAgCAAAACgoKAAAAAAAA
+CgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAEEwQADQgICAoKCgHdwK8Z
+'/*!*/;
+# at 256
+#260312 13:39:14 server id 1  end_log_pos 299 CRC32 0x5ae1a71c 	Gtid list [0-1-2]
+# at 299
+#260312 13:39:14 server id 1  end_log_pos 343 CRC32 0x408038ad 	Binlog checkpoint master-bin.000001
+# at 343
+#260312 13:39:14 server id 1  end_log_pos 387 CRC32 0xda295279 	Binlog checkpoint master-bin.000002
+DELIMITER ;
+# End of log file
+ROLLBACK /* added by mysqlbinlog */;
+/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/;
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;
+connection master;
+DROP TABLE IF EXISTS t1;
+connection slave;
+STOP SLAVE;
+DROP TABLE IF EXISTS t1;

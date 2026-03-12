@@ -3393,6 +3393,7 @@ static inline my_bool is_gtid_at_or_after(rpl_gtid *boundary,
                                           rpl_gtid *test_gtid)
 {
   return test_gtid->domain_id == boundary->domain_id &&
+         test_gtid->server_id == boundary->server_id &&
          test_gtid->seq_no >= boundary->seq_no;
 }
 
@@ -3400,6 +3401,7 @@ static inline my_bool is_gtid_at_or_before(rpl_gtid *boundary,
                                      rpl_gtid *test_gtid)
 {
   return test_gtid->domain_id == boundary->domain_id &&
+         test_gtid->server_id == boundary->server_id &&
          test_gtid->seq_no <= boundary->seq_no;
 }
 

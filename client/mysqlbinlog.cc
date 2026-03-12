@@ -1135,13 +1135,11 @@ Exit_status process_event(PRINT_EVENT_INFO *print_event_info, Log_event *ev,
         retval= OK_STOP;
         goto end;
       }
-
-      if (!gtid_event_filter->exclude(&ev_gtid))
-        print_event_info->activate_current_event_group();
-      else
-        print_event_info->deactivate_current_event_group();
+     if (!gtid_event_filter->exclude(&ev_gtid))
+       print_event_info->activate_current_event_group();
+     else
+       print_event_info->deactivate_current_event_group();
     }
-
     /*
       Where we always ensure the initial binlog state is valid, we only
       continually monitor the GTID stream for validity if we are in GTID
