@@ -1,28 +1,24 @@
---source include/master-slave.inc
+# MDEV-28278
 
---echo #
---echo MDEV-28278 / MDEV-37231: mysqlbinlog must respect server_id
---echo #
+--source include/have_log_bin.inc
+--source include/have_binlog_format_statement.inc
+--source include/master-slave.inc
 
 connection master;
 
-CREATE TABLE t1(id INT);
+CREATE TABLE t1 (id INT);
 INSERT INTO t1 VALUES (1),(2),(3);
 
 FLUSH LOGS;
+INSERT INTO t1 VALUES (10);
 
---let $binlog_file= query_get_value(SHOW MASTER STATUS, File, 1)
+--replace_regex /^SET TIMESTAMP=.*$//
+--exec $MYSQL_TEST_DIR/../client/mariadb-binlog --base64-output=DECODE-ROWS --short-form $MYSQLTEST_VARDIR/mysqld.1/data/master-bin.000001
 
---echo #
---echo Dump binlog using mysqlbinlog
---echo #
-
---exec $MYSQL_BINLOG $MYSQLTEST_VARDIR/mysqld.1/data/$binlog_file
-
-# cleanup
 connection master;
 DROP TABLE IF EXISTS t1;
 
 connection slave;
 STOP SLAVE;
+RESET SLAVE ALL;
 DROP TABLE IF EXISTS t1;
