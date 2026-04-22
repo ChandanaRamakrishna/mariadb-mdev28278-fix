@@ -1,5 +1,6 @@
 # MDEV-28278
 # regression test for MDEV-28278
+# ensure visibility in PR
 
 --source include/have_log_bin.inc
 --source include/have_binlog_format_statement.inc
