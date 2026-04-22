@@ -1,4 +1,5 @@
 # MDEV-28278
+# regression test for MDEV-28278
 
 --source include/have_log_bin.inc
 --source include/have_binlog_format_statement.inc

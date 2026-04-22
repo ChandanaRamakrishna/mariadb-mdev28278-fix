@@ -1,3 +1,4 @@
+# expected output
 include/master-slave.inc
 [connection master]
 connection master;
